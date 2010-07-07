@@ -1,5 +1,6 @@
 from django.db import models
 import urllib
+# http://docs.djangoproject.com/en/dev/ref/contrib/localflavor/#united-states-of-america-us
 from django.contrib.localflavor.us.models import PhoneNumberField, USStateField
 import string
 
@@ -26,6 +27,8 @@ class PersonInterest(models.Model):
 	description = models.CharField(max_length=50)
 
 class AgeGroup(models.Model):
+	def __unicode__(self):
+		return self.description
 	description = models.CharField(max_length=30)
 
 class Person(models.Model):
@@ -34,7 +37,8 @@ class Person(models.Model):
 		('F', 'Female'),
 	)
 	def __unicode__(self):
-		return self.firstname + " " + self.lastname
+		return u"{0} {1}".format(self.firstname,self.lastname)
+		#return self.firstname + " " + self.lastname
 	firstname = models.CharField(max_length=50)
 	lastname = models.CharField(max_length=50)
 	gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
@@ -46,8 +50,8 @@ class Person(models.Model):
 # Create your models here.
 class County(models.Model):
 	def __unicode__(self):
-		#return "{0}, {1}".format(self.name,self.county)
-		return self.name + " " + self.state
+		return u"{0}, {1}".format(self.name,self.state)
+		#return self.name + " " + self.state
 	name = models.CharField(max_length=50, null=False)
 	state = USStateField(null=False)
 	resicode = models.CharField(max_length=2, null=False)
@@ -55,17 +59,20 @@ class County(models.Model):
 class Street(models.Model):
 	def __unicode__(self):
 		return self.name +" " +self.county.name
+		return u"{0} {1}".format(self.name,self.county.name)
 	county = models.ForeignKey(County, null=False)
 	name = models.CharField(max_length=50)
 
 class Property(models.Model):
 	def __unicode__(self):
-		#return "{0}{1} {2}".format(self.number, self.suffix, self.street.name)
-		return str(self.number) + " " + self.street.name
+		return "{0}{1} {2}".format(self.number, self.suffix, self.street.name)
+		#return str(self.number) + " " + self.street.name
 	number = models.IntegerField(null=False, blank=False)
 	suffix = models.CharField(max_length=15, null=True, blank=True)
 	street = models.ForeignKey(Street, null=False)
 	residents = models.ManyToManyField(Person, null=True, blank=True)
+	# Geography 
+	# http://www.fairviewcomputing.com/blog/2008/04/16/django-geography-hacks/
 	latitude = models.FloatField(blank=True, null=True)
 	longitude = models.FloatField(blank=True, null=True)
 
