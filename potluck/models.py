@@ -7,6 +7,15 @@ class County(models.Model):
 	name = models.CharField(max_length=50, null=False)
 	state = USStateField(null=False)
 	resicode = models.CharField(max_length=2, null=False)
+	class Meta:
+		verbose_name_plural = "Counties"
+
+class Community(models.Model):
+	def __unicode__(self):
+		return self.name	
+	name = models.CharField(max_length=50, null=False, blank=False)
+	class Meta:
+		verbose_name_plural = "Communities"
 
 class Property(models.Model):
 	def __unicode__(self):
@@ -20,6 +29,7 @@ class Property(models.Model):
 			self.county.resicode)
 	house = models.CharField(max_length=10, null=False)
 	street = models.CharField(max_length=50, null=False)
+	community = models.ForeignKey(Community, null=True, blank=True)
 	county = models.ForeignKey(County, null=False, blank=False)
 	city = models.CharField(max_length=50, null=False)
 	#zip = us.forms.USZipCodeField(null=False)
@@ -27,16 +37,22 @@ class Property(models.Model):
 	account = models.CharField(max_length=50, null=True, blank=True)
 	latitude = models.FloatField(blank=True, null=True)
 	longitude = models.FloatField(blank=True, null=True)
+	class Meta:
+		verbose_name_plural = "Properties"
 
 class Interest(models.Model):
 	def __unicode__(self):
 		return self.description
 	description = models.CharField(max_length=50)
+	class Meta:
+		ordering = ['description']
 
 class Industry(models.Model):
 	def __unicode__(self):
 		return self.description
 	description = models.CharField(max_length=50, null=False, blank=False)
+	class Meta:
+		verbose_name_plural = "Industries"
 
 # Membership is stored interally to a household
 # since a membership can travel from Property to 
@@ -54,9 +70,11 @@ class Household(models.Model):
 	property = models.ForeignKey(Property, unique=False, null=True, blank=True)
 	address_append = models.CharField(max_length=50, null=True, blank=True) 
 	# Head of household must also be a member of the household
-	activated = models.DateField(auto_now=False, auto_now_add=False)
-	last_renewal = models.DateField(auto_now=False, auto_now_add=False)
-	type = models.CharField(max_length=1, choices=MEMBERSHIP_CHOICES)
+	activated = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
+	last_renewal = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
+	type = models.CharField(max_length=1, choices=MEMBERSHIP_CHOICES, null=True, blank=True)
+	class Meta:
+		ordering = ['name']
 
 class Person(models.Model):
 	GENDER_CHOICES = (
@@ -68,7 +86,7 @@ class Person(models.Model):
 	head = models.NullBooleanField()
 	firstname = models.CharField(max_length=50)
 	lastname = models.CharField(max_length=50)
-	phone = PhoneNumberField(null=True, blank=True, unique=False)
+	phone = PhoneNumberField(null=True, blank=True, unique=False, max_length=15)
 	phone_backup = PhoneNumberField(null=True, blank=True, unique=False)
 	email = models.EmailField(null=True, blank=True, unique=False)
 	email_backup = models.EmailField(null=True, blank=True, unique=False)
@@ -77,6 +95,9 @@ class Person(models.Model):
 	interests = models.ManyToManyField(Interest, null=True, blank=True)
 	gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True, unique=False)
 	household = models.ForeignKey(Household, unique=False, null=True, blank=True)
+	class Meta:
+		ordering = ['lastname','firstname']
+		verbose_name_plural = 'People'
 
 class Business(models.Model):
 	def __unicode__(self):
@@ -91,4 +112,6 @@ class Business(models.Model):
 	address_append = models.CharField(max_length=50, null=True, blank=True)
 	industries = models.ManyToManyField(Industry, null=True, blank=True)
 	employees = models.ManyToManyField(Person, null=True, blank=True)
+	class Meta:
+		verbose_name_plural = 'Businesses'
 
