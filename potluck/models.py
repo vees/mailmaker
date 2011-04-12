@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.localflavor.us.models import PhoneNumberField, USStateField
+import datetime
 
 class County(models.Model):
 	def __unicode__(self):
@@ -27,6 +28,9 @@ class Property(models.Model):
 			url,
 			urllib.quote(self.account),
 			self.county.resicode)
+	def address(self):
+		return "{0} {1}".format(self.house, self.street)
+	address.short_description = 'Address'
 	house = models.CharField(max_length=10, null=False)
 	street = models.CharField(max_length=50, null=False)
 	community = models.ForeignKey(Community, null=True, blank=True)
@@ -83,6 +87,14 @@ class Person(models.Model):
 	)
 	def __unicode__(self):
 		return u"{0} {1}".format(self.firstname,self.lastname)
+	def in_good_standing(self):
+		if self.household == None:
+			return False
+		if self.household.last_renewal == None:
+			return False
+		else:
+			return self.household.last_renewal.year>=datetime.datetime.now().year
+	in_good_standing.boolean=True
 	head = models.NullBooleanField()
 	firstname = models.CharField(max_length=50)
 	lastname = models.CharField(max_length=50)
@@ -95,6 +107,9 @@ class Person(models.Model):
 	interests = models.ManyToManyField(Interest, null=True, blank=True)
 	gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True, unique=False)
 	household = models.ForeignKey(Household, unique=False, null=True, blank=True)
+	notes = models.TextField(null=True, blank=True)
+	last_modified = models.DateField(auto_now=True)
+	created_on = models.DateField(auto_now_add=True)
 	class Meta:
 		ordering = ['lastname','firstname']
 		verbose_name_plural = 'People'
