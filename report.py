@@ -41,6 +41,6 @@ news=Person.objects.filter(interests__description='Newsletter').exclude(email=''
 hhset = set([(p.firstname,p.lastname,p.email) for p in news])
 for hh in hhset:
 	if (hh != None):
-		print "{0} {1} {2}".format(hh[0],hh[1],hh[2])
+		print "{0} {1} <{2}>".format(hh[0],hh[1],hh[2])
 print
 

@@ -6,7 +6,10 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     # Example:
-    (r'^$', 'harfordpark.properties.views.list'),
+
+    (r'^public/(?P<report_id>\d+)$', 'harfordpark.potluck.views.public'),
+    (r'^private/(?P<report_id>\d+)$', 'harfordpark.potluck.views.private'),
+    (r'^$', 'harfordpark.potluck.views.index'),
 
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:

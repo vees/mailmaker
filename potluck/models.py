@@ -66,6 +66,8 @@ class Household(models.Model):
 		# Also need to code for the case where the name is not
 		# defined and we need to use the name of the head instead.
 		return u"{0} Household at {1}".format(self.name, self.property.street)
+	def in_good_standing(self):
+		return self.last_renewal.year>=datetime.datetime.now().year
 	MEMBERSHIP_CHOICES = (
 		('R', 'Resident'),
 		('A', 'Auxiliary'),
@@ -93,7 +95,7 @@ class Person(models.Model):
 		if self.household.last_renewal == None:
 			return False
 		else:
-			return self.household.last_renewal.year>=datetime.datetime.now().year
+			return self.household.in_good_standing()
 	in_good_standing.boolean=True
 	head = models.NullBooleanField()
 	firstname = models.CharField(max_length=50)
