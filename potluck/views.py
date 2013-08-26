@@ -15,12 +15,12 @@ def index(request):
 	response.write("Harford Park Neighborhood Data API")
 	return response
 
-def complaints(request):
+def _generate_local():
 	import csv
 	import codecs
 	sourcefile = '/home/harfordpark/harfordpark.com/harfordpark/codecomplaincsv130826.csv'
 	with codecs.open(sourcefile, 'rb', 'utf-8-sig') as f:
-		reader = csv.reader(f, delimiter=';', quotechar='"')
+		reader = csv.reader(f, delimiter=',', quotechar='"')
 		headers = reader.next()
 		print headers
 		complained = {}
@@ -31,9 +31,23 @@ def complaints(request):
 	
 	both = dict([(x,complained[x][1:]) for x in list(set(mystreets) & set(complained.keys()))])
 
-	callback = request.GET.get('callback')
 	output = { 'Source': sourcefile, 'Harford Park': mystreets, "Complaints": complained, "Local": both }
-	output = { 'Source': sourcefile, "Complaints": both }
+	#output = { 'Source': sourcefile, "Complaints": both }
+	return output
+
+def complaints_csv(request):
+	output = ""
+	complaints = _generate_local()
+	for key in complaints["Local"]:
+		address = key
+		cdata = complaints["Local"][key]
+		if cdata[5] != "Closed":
+			output += "%s:\nCase %s (%s)\nOpened %s - Status: %s\n\n" % (address, cdata[0], cdata[1], cdata[2], cdata[5])
+	return HttpResponse(output, content_type='text/ascii')
+
+def complaints(request):
+	output = _generate_local()
+	callback = request.GET.get('callback')
 	json_output=json.dumps( output, sort_keys=True, indent=4)
  	if callback:
 		json_output = '%s(%s)' % (callback, json_output)
