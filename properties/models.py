@@ -25,6 +25,6 @@ class ListingWebPage(models.Model):
 	def __unicode__(self):
 		return self.listing.mls + " " + self.listing.property.__unicode__() + " " + self.url[7:40]
 	listing = models.ForeignKey(Listing)
-	url = models.URLField(max_length=200, verify_exists=True)
+	url = models.URLField(max_length=200)
 	active = models.BooleanField()
 

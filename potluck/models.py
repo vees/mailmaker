@@ -22,6 +22,8 @@ class Property(models.Model):
 	def __unicode__(self):
 		return u"{0} {1} {2} ({3} County) {4} {5}".format(
 			self.house, self.street, self.city, self.county.name, self.county.state, self.zip)
+	def shortlink(self):
+		return u"{0} {1}".format(self.house,self.street)
 	def resiurl(self):
 		url="http://sdatcert3.resiusa.org/rp_rewrite/details.aspx"
 		return "{0}?AccountNumber={1}County={2}&SearchType=STREET".format(
@@ -39,6 +41,7 @@ class Property(models.Model):
 	#zip = us.forms.USZipCodeField(null=False)
 	zip = models.CharField(max_length=10, null=False)
 	account = models.CharField(max_length=50, null=True, blank=True)
+	owner_occupied = models.NullBooleanField(blank=True)
 	latitude = models.FloatField(blank=True, null=True)
 	longitude = models.FloatField(blank=True, null=True)
 	class Meta:
@@ -105,7 +108,7 @@ class Person(models.Model):
 	email = models.EmailField(null=True, blank=True, unique=False)
 	email_backup = models.EmailField(null=True, blank=True, unique=False)
 	birthday = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True, unique=False)
-	website = models.URLField(verify_exists=True, max_length=200, null=True, blank=True, unique=False)
+	website = models.URLField(max_length=200, null=True, blank=True, unique=False)
 	interests = models.ManyToManyField(Interest, null=True, blank=True)
 	gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True, unique=False)
 	household = models.ForeignKey(Household, unique=False, null=True, blank=True)
@@ -124,7 +127,7 @@ class Business(models.Model):
 		related_name='owner_set')
 	phone = PhoneNumberField(null=True, blank=True, unique=False)
 	email = models.EmailField(null=True, blank=True, unique=False)
-	website = models.URLField(verify_exists=True, null=True, blank=True, max_length=200)
+	website = models.URLField(null=True, blank=True, max_length=200)
 	location = models.ForeignKey(Property, unique=False, null=False, blank=False)
 	address_append = models.CharField(max_length=50, null=True, blank=True)
 	industries = models.ManyToManyField(Industry, null=True, blank=True)

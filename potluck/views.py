@@ -1,17 +1,53 @@
 # Create your views here.
 
+import json
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.forms import ModelForm
 from django.http import HttpResponseRedirect
+import csv
 
 from models import *
 
 def index(request):
 	response = HttpResponse()
-	response.write("Public and Private Reports")
+	response.write("Harford Park Neighborhood Data API")
 	return response
+
+def complaints(request):
+	import csv
+	import codecs
+	sourcefile = '/home/harfordpark/harfordpark.com/harfordpark/codecomplaincsv130826.csv'
+	with codecs.open(sourcefile, 'rb', 'utf-8-sig') as f:
+		reader = csv.reader(f, delimiter=';', quotechar='"')
+		headers = reader.next()
+		print headers
+		complained = {}
+		for x in reader:
+			complained[x[0]] = x
+
+	mystreets = [x.house + " " + x.street.upper() for x in Property.objects.filter(community__name='Harford Park')]
+	
+	both = dict([(x,complained[x][1:]) for x in list(set(mystreets) & set(complained.keys()))])
+
+	callback = request.GET.get('callback')
+	output = { 'Source': sourcefile, 'Harford Park': mystreets, "Complaints": complained, "Local": both }
+	output = { 'Source': sourcefile, "Complaints": both }
+	json_output=json.dumps( output, sort_keys=True, indent=4)
+ 	if callback:
+		json_output = '%s(%s)' % (callback, json_output)
+	return HttpResponse(json_output, content_type='application/json')
+
+def properties(request):
+	mystreets = [x.house + " " + x.street.upper() for x in Property.objects.filter(community__name='Harford Park').order_by('street','house')]
+	callback = request.GET.get('callback')
+	output = { 'Harford Park': mystreets }
+	json_output=json.dumps( output, sort_keys=True, indent=4)
+ 	if callback:
+		json_output = '%s(%s)' % (callback, json_output)
+	return HttpResponse(json_output, content_type='application/json')
+
 
 def public(request, report_id):
 	if report_id=='1':  # all addresses
@@ -72,6 +108,6 @@ def address_out(query):
 			output += p.street + '\n'
 			output += "=" * len(p.street) + '\n'
 			pre=p.street
-		output += p.__unicode__() + '\n'
+		output += p.shortlink() + '\n'
 	return pre_html(output)
 

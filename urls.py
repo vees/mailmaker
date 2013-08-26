@@ -7,6 +7,8 @@ admin.autodiscover()
 urlpatterns = patterns('',
     # Example:
 
+    (r'^api/complaints/$', 'harfordpark.potluck.views.complaints'),
+    (r'^api/properties/$', 'harfordpark.potluck.views.properties'),
     (r'^public/(?P<report_id>\d+)$', 'harfordpark.potluck.views.public'),
     (r'^private/(?P<report_id>\d+)$', 'harfordpark.potluck.views.private'),
     (r'^$', 'harfordpark.potluck.views.index'),
