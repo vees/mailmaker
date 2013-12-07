@@ -16,10 +16,13 @@ def Do():
     parser = SafeConfigParser()
     parser.read('mailmaker/simple.ini')
 
-    mdtext = ''
     publish_type = 'preview'
     target_date = datetime.date(2013,12,31)
     show_summary = True
+    show_this_week = False
+    include_title_in_text = False
+
+    mdtext = ''
 
     articles = Article.objects \
         .exclude(embargo_date__gt=target_date, embargo_date__isnull=False) \
@@ -42,14 +45,16 @@ def Do():
 
     title = "Updates for {0}".format(datetime.date.strftime(target_date, "%B %-d, %Y"))
 
-    #mdtext += u'#{0} {1}\n\n'.format(parser.get('mailchimp', 'assoc_name'), title)
+    if include_title_in_text:
+        mdtext += u'#{0} {1}\n\n'.format(parser.get('mailchimp', 'assoc_name'), title)
 
-    #newthisweek = articles.filter(posted_last=None)
-    #if len(newthisweek)>0:
-    #	mdtext += u'##New This Week\n\n'
-    #for article in newthisweek:
-    #	mdtext += u'{0},'.format(article.title, article.category.longname)
-    #mdtext += 'and more.\n\n'
+    if show_this_week:
+        newthisweek = articles.filter(posted_last=None)
+        if len(newthisweek)>0:
+            mdtext += u'##New This Week\n\n'
+        for article in newthisweek:
+            mdtext += u'{0},'.format(article.title, article.category.longname)
+        mdtext += 'and more.\n\n'
 
     for category in Category.objects.all().order_by('priority'):
         articlesubset = articles.filter(category=category)
