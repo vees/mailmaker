@@ -18,7 +18,7 @@ def index(request):
 def _generate_local():
 	import csv
 	import codecs
-	sourcefile = '/home/harfordpark/harfordpark.com/harfordpark/codecomplaincsv130826.csv'
+	sourcefile = '/home/harfordpark/harfordpark.com/harfordpark/codecompliant131510.csv'
 	with codecs.open(sourcefile, 'rb', 'utf-8-sig') as f:
 		reader = csv.reader(f, delimiter=',', quotechar='"')
 		headers = reader.next()

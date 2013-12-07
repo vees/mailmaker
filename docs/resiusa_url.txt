@@ -1,8 +1,0 @@
-County Account number: 09%20%200908801390
-"09  0908801390"
-
-City Account Number: 27%2036%205470%20%20021%20
-"27 36 5470  021 "
-
-URL:
-http://sdatcert3.resiusa.org/rp_rewrite/details.aspx?AccountNumber=27%2036%205470%20%20021%20&County=03&SearchType=STREET
