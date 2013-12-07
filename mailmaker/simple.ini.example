@@ -1,0 +1,11 @@
+[wordpress]
+username = 
+password = 
+xmlrpc = 
+
+[mailchimp]
+assoc_name = 
+from_email = 
+to_email = 
+server = 
+
