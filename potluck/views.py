@@ -18,20 +18,28 @@ def index(request):
 def _generate_local():
 	import csv
 	import codecs
-	sourcefile = '/home/harfordpark/harfordpark.com/harfordpark/codecompliant131510.csv'
-	with codecs.open(sourcefile, 'rb', 'utf-8-sig') as f:
-		reader = csv.reader(f, delimiter=',', quotechar='"')
-		headers = reader.next()
-		print headers
-		complained = {}
-		for x in reader:
-			complained[x[0]] = x
+	import mechanize
+	br=mechanize.Browser()
+	br.set_handle_robots(False)
+	br.open("http://www.baltimorecountymd.gov/Agencies/permits/codeenforcement/complaintreports.html")
+	br.follow_link(text="(CSV)")
+	s= br.response().get_data()
+	import StringIO
+	#sourcefile = '/home/harfordpark/harfordpark.com/harfordpark/codecompliant131510.csv'
+	f = StringIO.StringIO(s)
+	#with codecs.open(sourcefile, 'rb', 'utf-8-sig') as f:
+	reader = csv.reader(f, delimiter=',', quotechar='"')
+	headers = reader.next()
+	print headers
+	complained = {}
+	for x in reader:
+		complained[x[0]] = x
 
 	mystreets = [x.house + " " + x.street.upper() for x in Property.objects.filter(community__name='Harford Park')]
 	
 	both = dict([(x,complained[x][1:]) for x in list(set(mystreets) & set(complained.keys()))])
 
-	output = { 'Source': sourcefile, 'Harford Park': mystreets, "Complaints": complained, "Local": both }
+	output = { 'Source': 'Downloaded', 'Harford Park': mystreets, "Complaints": complained, "Local": both }
 	#output = { 'Source': sourcefile, "Complaints": both }
 	return output
 
@@ -43,7 +51,7 @@ def complaints_csv(request):
 		cdata = complaints["Local"][key]
 		if cdata[5] != "Closed":
 			output += "%s:\nCase %s (%s)\nOpened %s - Status: %s\n\n" % (address, cdata[0], cdata[1], cdata[2], cdata[5])
-	return HttpResponse(output, content_type='text/ascii')
+	return HttpResponse(output, content_type='text/plain')
 
 def complaints(request):
 	output = _generate_local()
