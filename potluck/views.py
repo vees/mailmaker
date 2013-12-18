@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.forms import ModelForm
 from django.http import HttpResponseRedirect
 import csv
+import os.path as path
+import time
 
 from models import *
 
@@ -19,18 +21,34 @@ def _generate_local():
 	import csv
 	import codecs
 	import mechanize
-	br=mechanize.Browser()
-	br.set_handle_robots(False)
-	br.open("http://www.baltimorecountymd.gov/Agencies/permits/codeenforcement/complaintreports.html")
-	br.follow_link(text="(CSV)")
-	s= br.response().get_data()
+
+	_MAX_AGE = 60 * 60 * 24
+
+	data_cache='/home/harfordpark/harfordpark.com/test.txt'
+	try:
+		baco_data_age = time.time()-path.getmtime(data_cache)
+	except:
+		baco_data_age = _MAX_AGE + 1
+	s=''
+	if baco_data_age > _MAX_AGE:
+		try:
+			print "Grabbing new version"
+			br=mechanize.Browser()
+			br.set_handle_robots(False)
+			br.open("http://www.baltimorecountymd.gov/Agencies/permits/codeenforcement/complaintreports.html")
+			br.follow_link(text="(CSV)")
+			s= br.response().get_data()
+			with open(data_cache, "w") as text_file:
+				text_file.write(s)
+		except:
+			s=''
+	if s=='':
+		with open (data_cache, "r") as myfile:
+			s=myfile.read()
 	import StringIO
-	#sourcefile = '/home/harfordpark/harfordpark.com/harfordpark/codecompliant131510.csv'
 	f = StringIO.StringIO(s)
-	#with codecs.open(sourcefile, 'rb', 'utf-8-sig') as f:
 	reader = csv.reader(f, delimiter=',', quotechar='"')
 	headers = reader.next()
-	print headers
 	complained = {}
 	for x in reader:
 		complained[x[0]] = x
@@ -39,7 +57,12 @@ def _generate_local():
 	
 	both = dict([(x,complained[x][1:]) for x in list(set(mystreets) & set(complained.keys()))])
 
-	output = { 'Source': 'Downloaded', 'Harford Park': mystreets, "Complaints": complained, "Local": both }
+	output = { 
+		#'string': s, 
+		'Source': 'Downloaded file %s seconds old' % int(baco_data_age), 
+		#'Harford Park': mystreets,
+		#"Complaints": complained,
+ 		"Local": both }
 	#output = { 'Source': sourcefile, "Complaints": both }
 	return output
 
