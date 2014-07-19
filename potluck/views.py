@@ -92,7 +92,7 @@ def complaints(request):
 	output = _generate_local()
 	callback = request.GET.get('callback')
 	json_output=json.dumps( output, sort_keys=True, indent=4)
-    if callback:
+	if callback:
 		json_output = '%s(%s)' % (callback, json_output)
 	return HttpResponse(json_output, content_type='application/json')
 
@@ -101,7 +101,7 @@ def properties(request):
 	callback = request.GET.get('callback')
 	output = { 'Harford Park': mystreets }
 	json_output=json.dumps( output, sort_keys=True, indent=4)
-    if callback:
+	if callback:
 		json_output = '%s(%s)' % (callback, json_output)
 	return HttpResponse(json_output, content_type='application/json')
 
@@ -111,10 +111,10 @@ def public(request, report_id):
 		return all_addresses(request)
 	if report_id=='2': # businesses
 		return businesses(request)
-    else:
-			response = HttpResponse()
-			response.write("Public {0} not written yet".format(report_id))
-			return response
+	else:
+		response = HttpResponse()
+		response.write("Public {0} not written yet".format(report_id))
+		return response
 
 def private(request, report_id):
 	if report_id=='1': # Paid up members
