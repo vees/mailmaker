@@ -36,7 +36,7 @@ def _generate_local():
 			br=mechanize.Browser()
 			br.set_handle_robots(False)
 			br.open("http://www.baltimorecountymd.gov/Agencies/permits/codeenforcement/complaintreports.html")
-			br.follow_link(text="(CSV)")
+			br.follow_link(text="Code Enforcement Complaints (CSV)")
 			s= br.response().get_data()
 			with open(data_cache, "w") as text_file:
 				text_file.write(s)
@@ -51,17 +51,17 @@ def _generate_local():
 	headers = reader.next()
 	complained = {}
 	for x in reader:
-		complained[x[0]] = x
+		complained[x[0][:-1]] = x
 
 	mystreets = [x.house + " " + x.street.upper() for x in Property.objects.filter(community__name='Harford Park')]
 	
 	both = dict([(x,complained[x][1:]) for x in list(set(mystreets) & set(complained.keys()))])
 
 	output = { 
-		#'string': s, 
+		'string': s, 
 		'Source': 'Downloaded file %s seconds old' % int(baco_data_age), 
-		#'Harford Park': mystreets,
-		#"Complaints": complained,
+		'Harford Park': mystreets,
+		"Complaints": complained,
  		"Local": both }
 	#output = { 'Source': sourcefile, "Complaints": both }
 	return output
@@ -74,7 +74,18 @@ def complaints_csv(request):
 		cdata = complaints["Local"][key]
 		if cdata[5] != "Closed":
 			output += "%s:\nCase %s (%s)\nOpened %s - Status: %s\n\n" % (address, cdata[0], cdata[1], cdata[2], cdata[5])
-	return HttpResponse(output, content_type='text/plain')
+	return HttpResponse(output, content_type='text/ascii')
+
+def complaints_html(request):
+	output = "<ul>"
+	complaints = _generate_local()
+	for key in complaints["Local"]:
+		address = key
+		cdata = complaints["Local"][key]
+		if cdata[5] != "Closed":
+			output += "<li>%s: Case %s (%s)<br/>Opened %s - Status: %s</li>" % (address, cdata[0], cdata[1], cdata[2], cdata[5])
+	output += "</ul>"
+	return HttpResponse(output, content_type='text/html')
 
 def complaints(request):
 	output = _generate_local()

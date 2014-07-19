@@ -7,6 +7,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
     # Example:
 
+    (r'^api/complaints/html/$', 'harfordpark.potluck.views.complaints_html'),
     (r'^api/csv/$', 'harfordpark.potluck.views.complaints_csv'),
     (r'^api/complaints/$', 'harfordpark.potluck.views.complaints'),
     (r'^api/properties/$', 'harfordpark.potluck.views.properties'),
