@@ -54,7 +54,7 @@ def _generate_local():
 		complained[x[0][:-1]] = x
 
 	mystreets = [x.house + " " + x.street.upper() for x in Property.objects.filter(community__name='Harford Park')]
-	
+
 	both = dict([(x,complained[x][1:]) for x in list(set(mystreets) & set(complained.keys()))])
 
 	output = { 
@@ -63,6 +63,7 @@ def _generate_local():
 		'Harford Park': mystreets,
 		"Complaints": complained,
  		"Local": both }
+	
 	#output = { 'Source': sourcefile, "Complaints": both }
 	return output
 
@@ -91,7 +92,7 @@ def complaints(request):
 	output = _generate_local()
 	callback = request.GET.get('callback')
 	json_output=json.dumps( output, sort_keys=True, indent=4)
- 	if callback:
+    if callback:
 		json_output = '%s(%s)' % (callback, json_output)
 	return HttpResponse(json_output, content_type='application/json')
 
@@ -100,7 +101,7 @@ def properties(request):
 	callback = request.GET.get('callback')
 	output = { 'Harford Park': mystreets }
 	json_output=json.dumps( output, sort_keys=True, indent=4)
- 	if callback:
+    if callback:
 		json_output = '%s(%s)' % (callback, json_output)
 	return HttpResponse(json_output, content_type='application/json')
 
@@ -110,7 +111,7 @@ def public(request, report_id):
 		return all_addresses(request)
 	if report_id=='2': # businesses
 		return businesses(request)
- 	else:
+    else:
 			response = HttpResponse()
 			response.write("Public {0} not written yet".format(report_id))
 			return response
@@ -118,7 +119,7 @@ def public(request, report_id):
 def private(request, report_id):
 	if report_id=='1': # Paid up members
 		return members(request)
- 	else:
+	else:
 			response = HttpResponse()
 			response.write("Private {0} not written yet".format(report_id))
 			return response
