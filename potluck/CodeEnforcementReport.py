@@ -90,12 +90,15 @@ class CodeEnforcementReport:
         self.display_list(self._complaints.keys())
 
     def filter_by_list(self, property_list):
-        return {x: self._complaints[x] for x in property_list if x in self._complaints.keys()}
+        return {x: [y for y in self._complaints[x] if y[5] not in ["Closed"]] for x in property_list if x in self._complaints.keys()}
 
-    def display_list(self, complaints):
-        for address in complaints:
+    def display_list(self, addresses, excludestatus=[]):
+        for address in addresses:
+            filtered_complaints = [y for y in self._complaints[address] if y[5] not in ["Closed"]]
+            if len(filtered_complaints) == 0:
+                continue
             print address
-            for complaint in self._complaints[address]:
+            for complaint in filtered_complaints:
                 print complaint
             print "=" * 35
 
