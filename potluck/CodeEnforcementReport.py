@@ -8,9 +8,6 @@ import codecs
 import mechanize
 import StringIO
 
-class CodeEnforcementEntry:
-    pass
-
 class CodeEnforcementReport:
     """Baltimore County Code Enforcement Report Representation"""
     def __init__(self, cachedir=None, max_age=None):
@@ -90,7 +87,13 @@ class CodeEnforcementReport:
             return None
 
     def dump(self):
-        for address in self._complaints.keys():
+        self.display_list(self._complaints.keys())
+
+    def filter_by_list(self, property_list):
+        return {x: self._complaints[x] for x in property_list if x in self._complaints.keys()}
+
+    def display_list(self, complaints):
+        for address in complaints:
             print address
             for complaint in self._complaints[address]:
                 print complaint
@@ -101,4 +104,5 @@ if __name__ == "__main__":
     cer.load()
     cer.process()
     #print cer.search("7502 OLD HARFORD RD")
-    cer.dump()
+    #cer.dump()
+    cer.display_list(cer.filter_by_list(['7502 OLD HARFORD RD', "bad key"]))
