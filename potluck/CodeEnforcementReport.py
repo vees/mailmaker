@@ -28,7 +28,6 @@ class CodeEnforcementReport:
     
     def load(self):
         data_cache = self._cachedir + '/bacodata.txt'
-        print data_cache
         try:
             baco_data_age = time.time()-path.getmtime(data_cache)
         except:
@@ -60,10 +59,9 @@ class CodeEnforcementReport:
         headers = reader.next()
         complained = {}
         for x in reader:
-            #print "Processing row %s" % x
             address_key = x[0][:-1]
             if len(address_key) < 3:
-                print "Didn't load address key '%s' in  %s" % (address_key, x)
+                #print "Didn't load address key '%s' in  %s" % (address_key, x)
                 continue
             x = x[1:]
             if address_key in complained:
@@ -89,18 +87,36 @@ class CodeEnforcementReport:
     def dump(self):
         self.display_list(self._complaints.keys())
 
-    def filter_by_list(self, property_list):
-        return {x: [y for y in self._complaints[x] if y[5] not in ["Closed"]] for x in property_list if x in self._complaints.keys()}
+    def filter_by_list(self, property_list, excludestatus=[]):
+        return {x: [y for y in self._complaints[x] if y[5] not in excludestatus] 
+            for x in property_list if x in self._complaints.keys()}
 
-    def display_list(self, addresses, excludestatus=[]):
-        for address in addresses:
-            filtered_complaints = [y for y in self._complaints[address] if y[5] not in ["Closed"]]
-            if len(filtered_complaints) == 0:
-                continue
+    def display_list(self, complaints_by_address):
+        for address in complaints_by_address:
+            if len(complaints_by_address[address]) == 0:
+                continue;
             print address
-            for complaint in filtered_complaints:
+            for complaint in complaints_by_address[address]:
                 print complaint
             print "=" * 35
+
+    def output_html(self, complaints_by_address):
+        output = ""
+        for address in complaints_by_address:
+            if len(complaints_by_address[address]) == 0:
+                continue;
+            output += "<p>%s</p>\n" % address
+            output += "<ul>\n"
+            for complaint in complaints_by_address[address]:
+                case, opened, updated = complaint[0], complaint[2], complaint[4]
+                output += "<li>Case %s" % case
+                if (len(updated)>0):
+                    output += " updated %s" % updated                
+                elif (len(opened)>0):
+                    output += " opened %s" % opened
+                output += "</li>\n";
+            output += "</ul>\n"
+        return output
 
 if __name__ == "__main__":
     cer = CodeEnforcementReport()
@@ -108,4 +124,4 @@ if __name__ == "__main__":
     cer.process()
     #print cer.search("7502 OLD HARFORD RD")
     #cer.dump()
-    cer.display_list(cer.filter_by_list(['7502 OLD HARFORD RD', "bad key"]))
+    cer.display_list(cer.filter_by_list(['7502 OLD HARFORD RD']))

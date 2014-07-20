@@ -6,7 +6,7 @@ def main():
     cer = CodeEnforcementReport.CodeEnforcementReport()
     cer.load()
     cer.process()
-    cer.display_list(cer.filter_by_list(my_hood))
+    print cer.output_html(cer.filter_by_list(my_hood, ["Closed"]))
  
 if __name__ == "__main__":
     main()
