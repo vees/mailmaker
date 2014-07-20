@@ -1,14 +1,17 @@
-# Create your views here.
-
-import json
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.forms import ModelForm
 from django.http import HttpResponseRedirect
+
+import json
 import csv
 import os.path as path
 import time
+import csv
+import codecs
+import mechanize
+import StringIO
 
 from models import *
 
@@ -18,13 +21,9 @@ def index(request):
 	return response
 
 def _generate_local():
-	import csv
-	import codecs
-	import mechanize
-
 	_MAX_AGE = 60 * 60 * 24
 
-	data_cache='/home/harfordpark/harfordpark.com/test.txt'
+	data_cache='/home/rob/bacodata.txt'
 	try:
 		baco_data_age = time.time()-path.getmtime(data_cache)
 	except:
@@ -45,7 +44,6 @@ def _generate_local():
 	if s=='':
 		with open (data_cache, "r") as myfile:
 			s=myfile.read()
-	import StringIO
 	f = StringIO.StringIO(s)
 	reader = csv.reader(f, delimiter=',', quotechar='"')
 	headers = reader.next()
@@ -62,8 +60,8 @@ def _generate_local():
 		'Source': 'Downloaded file %s seconds old' % int(baco_data_age), 
 		'Harford Park': mystreets,
 		"Complaints": complained,
- 		"Local": both }
-	
+        "Local": both, }
+
 	#output = { 'Source': sourcefile, "Complaints": both }
 	return output
 
