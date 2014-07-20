@@ -13,6 +13,9 @@ import codecs
 import mechanize
 import StringIO
 
+import CodeEnforcementReport
+import NeighborhoodList
+
 from models import *
 
 def index(request):
@@ -76,15 +79,12 @@ def complaints_csv(request):
 	return HttpResponse(output, content_type='text/ascii')
 
 def complaints_html(request):
-	output = "<ul>"
-	complaints = _generate_local()
-	for key in complaints["Local"]:
-		address = key
-		cdata = complaints["Local"][key]
-		if cdata[5] != "Closed":
-			output += "<li>%s: Case %s (%s)<br/>Opened %s - Status: %s</li>" % (address, cdata[0], cdata[1], cdata[2], cdata[5])
-	output += "</ul>"
-	return HttpResponse(output, content_type='text/html')
+    my_hood = [x.house + " " + x.street.upper() for x in Property.objects.filter(community__name='Harford Park')]
+    cer = CodeEnforcementReport.CodeEnforcementReport()
+    cer.load()
+    cer.process()
+    output = cer.output_html(cer.filter_by_list(my_hood, ["Closed"]))
+    return HttpResponse(output, content_type='text/html')
 
 def complaints(request):
 	output = _generate_local()

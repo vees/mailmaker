@@ -59,7 +59,7 @@ class CodeEnforcementReport:
         headers = reader.next()
         complained = {}
         for x in reader:
-            address_key = x[0][:-1]
+            address_key = x[0][:-1].upper()
             if len(address_key) < 3:
                 #print "Didn't load address key '%s' in  %s" % (address_key, x)
                 continue
