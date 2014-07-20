@@ -101,21 +101,20 @@ class CodeEnforcementReport:
             print "=" * 35
 
     def output_html(self, complaints_by_address):
-        output = ""
+        output = "<ul>"
         for address in complaints_by_address:
             if len(complaints_by_address[address]) == 0:
                 continue;
-            output += "<p>%s</p>\n" % address
-            output += "<ul>\n"
+            output += "<li>%s\n" % address
             for complaint in complaints_by_address[address]:
                 case, opened, updated = complaint[0], complaint[2], complaint[4]
-                output += "<li>Case %s" % case
+                output += "<br/>Case %s" % case
                 if (len(updated)>0):
                     output += " updated %s" % updated                
                 elif (len(opened)>0):
                     output += " opened %s" % opened
                 output += "</li>\n";
-            output += "</ul>\n"
+        output += "</ul>\n"
         return output
 
 if __name__ == "__main__":
