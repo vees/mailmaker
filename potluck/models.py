@@ -1,12 +1,12 @@
 from django.db import models
-from django.contrib.localflavor.us.models import PhoneNumberField, USStateField
+#from django.contrib.localflavor.us.models import PhoneNumberField, USStateField
 import datetime
 
 class County(models.Model):
 	def __unicode__(self):
 		return u"{0}, {1}".format(self.name,self.state)
 	name = models.CharField(max_length=50, null=False)
-	state = USStateField(null=False)
+	state = models.CharField(null=False)
 	resicode = models.CharField(max_length=2, null=False)
 	class Meta:
 		verbose_name_plural = "Counties"
@@ -103,8 +103,8 @@ class Person(models.Model):
 	head = models.NullBooleanField()
 	firstname = models.CharField(max_length=50)
 	lastname = models.CharField(max_length=50)
-	phone = PhoneNumberField(null=True, blank=True, unique=False, max_length=15)
-	phone_backup = PhoneNumberField(null=True, blank=True, unique=False)
+	phone = models.CharField(null=True, blank=True, unique=False, max_length=15)
+	phone_backup = models.CharField(null=True, blank=True, unique=False)
 	email = models.EmailField(null=True, blank=True, unique=False)
 	email_backup = models.EmailField(null=True, blank=True, unique=False)
 	birthday = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True, unique=False)
@@ -125,7 +125,7 @@ class Business(models.Model):
 	name = models.CharField(max_length=50, null=True, blank=True)
 	owner = models.ForeignKey(Person, unique=True, null=True, blank=True,
 		related_name='owner_set')
-	phone = PhoneNumberField(null=True, blank=True, unique=False)
+	phone = models.CharField(null=True, blank=True, unique=False)
 	email = models.EmailField(null=True, blank=True, unique=False)
 	website = models.URLField(null=True, blank=True, max_length=200)
 	location = models.ForeignKey(Property, unique=False, null=False, blank=False)
